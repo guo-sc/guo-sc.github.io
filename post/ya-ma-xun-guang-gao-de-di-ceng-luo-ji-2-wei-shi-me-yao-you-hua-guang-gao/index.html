@@ -1,0 +1,221 @@
+<html>
+
+<head>
+  <meta charset="utf-8" />
+<meta name="description" content="温故，知新，分享。" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+<title>亚马逊广告的底层逻辑(2)–为什么要优化广告？ | Yesman&#39;s Blog</title>
+<link rel="shortcut icon" href="http://yesman.cc/favicon.ico">
+
+<link rel="stylesheet" href="http://yesman.cc/styles/main.css">
+<link rel="apple-touch-icon" href="http://yesman.cc/favicon.ico">
+<meta name="apple-mobile-web-app-title" content="Yesman's Blog">
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+<!-- iconfont -->
+<link href="https://at.alicdn.com/t/c/font_4694057_doq89xvm6r.css" rel="stylesheet" />
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZE3LKDG3T4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag('js', new Date());
+  gtag('config', 'G-ZE3LKDG3T4');
+</script>
+
+</head>
+
+<body>
+  <div class="main">
+    <div class="main-content">
+      <div class="nav-bar">
+  <!-- 首页菜单 -->
+  <div class="menu-container">
+    <a href="http://yesman.cc/index.html" target="_parent" class="home">
+      <svg class="home-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="24" height="24">
+        <path fill="#fff" d="M12 14l9-5-9-5-9 5 9 5z"></path>
+        <path fill="#fff"
+          d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z">
+        </path>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222">
+        </path>
+      </svg>
+      <span class="home-title">Home</span>
+    </a>
+
+    <div class="nav-menu">
+      
+      
+      <a href="/" class="menu">
+        首页
+      </a>
+      
+      
+      
+      <a href="http://yesman.cc/tags" class="menu">
+        分类
+      </a>
+      
+      
+      
+      <a href="http://yesman.cc/post/my-collections" class="menu">
+        收藏
+      </a>
+      
+      
+      
+      <a href="/archives" class="menu">
+        归档
+      </a>
+      
+      
+      
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+      
+      
+
+
+
+      <!-- <a href="http://yesman.cc/atom.xml" target="_blank" class="rss">
+        <span class="rss-title">RSS</span>
+        <i class="iconfont icon-rss"></i>
+      </a> -->
+    </div>
+  </div>
+</div>
+
+      <div class="post-detail">
+        <article class="post">
+          
+          <div class="post-tag">
+            <svg class="tag-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="24" height="24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M7 7h.01M7 3h5a1.99 1.99 0 011.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z">
+              </path>
+            </svg>
+            <a href="http://yesman.cc/tag/amazon-ads/" class="tag">
+              亚马逊广告
+            </a>
+          </div>
+          
+          <h2 class="post-title">
+            亚马逊广告的底层逻辑(2)–为什么要优化广告？
+          </h2>
+
+          <div class="post-info">
+            <svg class="post-date" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <time class="post-time">
+              2024-07-12
+            </time>
+            <svg fill="none" class="view-icon" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z">
+              </path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+              </path>
+            </svg>
+            <span id="/ya-ma-xun-guang-gao-de-di-ceng-luo-ji-2-wei-shi-me-yao-you-hua-guang-gao/" class="leancloud_visitors" data-flag-title="亚马逊广告的底层逻辑(2)–为什么要优化广告？">
+              <span class="leancloud-visitors-count"></span><span> 次阅读</span>
+            </span>
+            <span>
+              2 min read
+            </span>
+          </div>
+
+          
+          <div class="post-content">
+            <p>为什么要优化广告？这里其实是几个问题</p>
+<p>广告效果是如何不好？广告要做到什么样才算好？是否有可能做到，如何做？</p>
+<p>一般我们设定广告目标，是基于利润要求。比如一款产品不含广告费用的利润有40%，我打算拿出利润率的20%进行广告投放，来扩大流量，加大品牌影响。</p>
+<p>那这时候我们就拿到了广告的核心指标 —  预算。</p>
+<p>假设产品售价100，月销售1W件，那么给到的预算就有100_10000_20%=20W。</p>
+<p>现在有了20W的广告预算，老板肯定不傻，要给你设定回报率啊，一般会按照需要的广告利润进行设定ROAS值。假设给定了ROAS为10。</p>
+<p>那么你就要对广告进行优化，直到ROAS值到达10.</p>
+<p>期间你通过选择关键词，选择ASIN投放，选择不同类目，使用了各种广告类型搭配，甚至使用什么黑科技，将关键词推前，什么广告分时调整。但发现你的ROAS值只有5，或者绝望点，只有0.5</p>
+<p>你开始慌了，钱已经花了10W，回报率只有0.5啊，怎么交差，要不辞职算了，反正不是亏的自己的钱。转念一想，既然不是自己的钱，为什么自己要辞职呢……</p>
+<p>又跑题了。。。。</p>
+<p>要去优化，肯定是因为某个指标没有达到预期。</p>
+<p>曝光没达标：可以增加更多投放，加Bid，竞价策略使用固定竞价，增加预算。</p>
+<p>点击量没达标：1、预算不够用导致，增加预算。2、点击率过低，改改图片，改改标题，改改价格，增加review，星级提高，把点击率低的投放给关了，把点击率高的拓展词，拓展ASIN投放。</p>
+<p>订单量没达标：1、不舍得花钱，多花钱订单自然来。2、投放太偏了，不适合转化。3、产品不行，不转化，去叼运营，叼老板，换个产品试试。</p>
+<p>要优化广告，但又不能只优化广告。</p>
+
+          </div>
+        </article>
+      </div>
+
+      <div class="near-post">
+        <div>
+          
+          <div class="prev-post">
+            <div class="prev">上一篇</div>
+            <a href="http://yesman.cc/post/ya-ma-xun-zhan-nei-guang-gao-zhi-nan/">
+              <h3 class="post-title">
+                <span>
+                  亚马逊站内广告指南
+                </span>
+              </h3>
+            </a>
+          </div>
+          
+        </div>
+        <div>
+          
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="http://yesman.cc/post/ya-ma-xun-guang-gao-de-di-ceng-luo-ji-1-wei-shi-me-yao-tou-guang-gao/">
+              <h3 class="post-title">
+                <span>
+                  亚马逊广告的底层逻辑(1)–为什么要投广告？
+                </span>
+              </h3>
+            </a>
+          </div>
+          
+        </div>
+      </div>
+
+      
+
+      <div class="valine">
+        
+      </div>
+
+      <div class="site-footer">
+  <p style="font-size:12px;color:#333333;font-family:-apple-system, &quot;background-color:#F9FAFB;">
+	<span style="color:#E53333;"><u><a href="https://yesman.cc/post/about/"><span style="color:#E53333;"><u><strong>Chaos</strong></u></span></a></u></span> <strong>is a ladder.</strong>
+</p>
+<p>--</p>
+  <b>Theme: </b>
+  <a href="//github.com/chiperman/gridea-theme-porky"><b>Porky</b></a
+  ><b> | Powered by </b>
+  <a href="//open.gridea.dev"><b>Gridea</b></a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad();
+</script>
+
+    </div>
+  </div>
+</body>
+
+</html>

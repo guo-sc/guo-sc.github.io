@@ -1,0 +1,225 @@
+<html>
+
+<head>
+  <meta charset="utf-8" />
+<meta name="description" content="温故，知新，分享。" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+<title>亚马逊广告的底层逻辑(1)–为什么要投广告？ | Yesman&#39;s Blog</title>
+<link rel="shortcut icon" href="http://yesman.cc/favicon.ico">
+
+<link rel="stylesheet" href="http://yesman.cc/styles/main.css">
+<link rel="apple-touch-icon" href="http://yesman.cc/favicon.ico">
+<meta name="apple-mobile-web-app-title" content="Yesman's Blog">
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+<!-- iconfont -->
+<link href="https://at.alicdn.com/t/c/font_4694057_doq89xvm6r.css" rel="stylesheet" />
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZE3LKDG3T4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag('js', new Date());
+  gtag('config', 'G-ZE3LKDG3T4');
+</script>
+
+</head>
+
+<body>
+  <div class="main">
+    <div class="main-content">
+      <div class="nav-bar">
+  <!-- 首页菜单 -->
+  <div class="menu-container">
+    <a href="http://yesman.cc/index.html" target="_parent" class="home">
+      <svg class="home-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="24" height="24">
+        <path fill="#fff" d="M12 14l9-5-9-5-9 5 9 5z"></path>
+        <path fill="#fff"
+          d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z">
+        </path>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222">
+        </path>
+      </svg>
+      <span class="home-title">Home</span>
+    </a>
+
+    <div class="nav-menu">
+      
+      
+      <a href="/" class="menu">
+        首页
+      </a>
+      
+      
+      
+      <a href="http://yesman.cc/tags" class="menu">
+        分类
+      </a>
+      
+      
+      
+      <a href="http://yesman.cc/post/my-collections" class="menu">
+        收藏
+      </a>
+      
+      
+      
+      <a href="/archives" class="menu">
+        归档
+      </a>
+      
+      
+      
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+      
+      
+
+
+
+      <!-- <a href="http://yesman.cc/atom.xml" target="_blank" class="rss">
+        <span class="rss-title">RSS</span>
+        <i class="iconfont icon-rss"></i>
+      </a> -->
+    </div>
+  </div>
+</div>
+
+      <div class="post-detail">
+        <article class="post">
+          
+          <div class="post-tag">
+            <svg class="tag-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="24" height="24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M7 7h.01M7 3h5a1.99 1.99 0 011.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z">
+              </path>
+            </svg>
+            <a href="http://yesman.cc/tag/amazon-ads/" class="tag">
+              亚马逊广告
+            </a>
+          </div>
+          
+          <h2 class="post-title">
+            亚马逊广告的底层逻辑(1)–为什么要投广告？
+          </h2>
+
+          <div class="post-info">
+            <svg class="post-date" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <time class="post-time">
+              2024-07-12
+            </time>
+            <svg fill="none" class="view-icon" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z">
+              </path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+              </path>
+            </svg>
+            <span id="/ya-ma-xun-guang-gao-de-di-ceng-luo-ji-1-wei-shi-me-yao-tou-guang-gao/" class="leancloud_visitors" data-flag-title="亚马逊广告的底层逻辑(1)–为什么要投广告？">
+              <span class="leancloud-visitors-count"></span><span> 次阅读</span>
+            </span>
+            <span>
+              4 min read
+            </span>
+          </div>
+
+          
+          <div class="post-content">
+            <p>自己做了差不多5年亚马逊了，也曾满腔热血，怀揣创业激情，梦想一日暴富。自己跑出过几个能够日出千单的产品，也经历过漫长的清仓路程。</p>
+<p>创过业，打过工。而且现在正在打工，在上市公司做过高级亚马逊运营，在纳斯达克上市公司做过VC广告投放，目前在国内一家C轮公司做亚马逊广告优化师。</p>
+<p>而为什么选择从运营到广告优化，是很多人在问我的问题，我想这事一个复杂的问题，有机会在慢慢聊吧。</p>
+<p>现在我们先聊下亚马逊广告，或者是所有的互联网广告，为什么要投广告，不投广告不行吗？</p>
+<p>这是一个好问题，如果你能想到这个问题，说明你在思考，这很棒。</p>
+<p>首先我们要能够达成一个共识，广告只能做到锦上添花的作用，而无法让产品、品牌、企业起死回生，或者有雪中送炭的作用。</p>
+<p>为什么要投广告，我们可以思考下，广告的本质是什么？广告是给了我们这些新产品新品牌机会的可能性，如果没有广告，那么就得靠用户口口相传，这个过程太慢，好处是省钱，没有广告费。</p>
+<p>在亚马逊上也是同样的道理，是广告给了我们产品机会，能够展示给用户，让消费者看到。而看到就是广告最核心的地方。</p>
+<p>不仅没有名气的时候需要广告，有名气，甚至消费者就是奔向你来的，比如搜索了苹果手机，如果苹果手机广告没有出现在第一个位置，说明这个广告投手不专业。</p>
+<p>如果华为手机拿下了苹果手机这个关键词的广告，假设广告使用了CPC付费，消费者没点击，那么华为的一次曝光不用付费，假设点击了，用一次广告点击费用就吸引了一个潜在苹果用户，甚至可以动摇品牌选择，撬走一个潜在用户，太值得了。</p>
+<p>而这就是广告投放的底层逻辑，广告位置稀缺，不仅你想要，你的对手也想要。</p>
+<p>你想要的可能是出单，而你的对手想要的可能是玩死你！！</p>
+<p>这是商业，是你死我活。</p>
+<p>当你明白了这个道理，就是应该清楚，为什么要投广告。</p>
+<p>但是你可能会问说，我知道为什么要投广告，但我不知道为什么要花那么多钱去投广告？</p>
+<p>花钱多，或者说广告花费占比高，那不是广告问题，那是优化问题。优化问题不仅是广告问题，包含了产品价格优化，成本优化，投放优化，从而提升利润，而不是降低广告费。</p>
+<p>经历多了，才发现，大家一直把问题想的很复杂，却不愿意接受平庸的自己。一直在说广告很贵，成本很高，却只想最复杂的事情，怎么用最少得钱获得广告最大回报。而不是想想广告成本高是不是自己不行。苹果一支视频广告可以几千万的制作成本，人家不说贵。</p>
+<p>到了亚马逊上，一个点击$1，就玩不下去了，该想想是不是自己比较菜，无法竞争，不如好好看看产品需求是不是存在，是不是有门槛的产品。</p>
+<p>广告的要回归广告本质，把复杂的广告，变得简单，这是我想把我这些年的经验分享一下，不要为了成本不敢去好好搞广告。能够真的去投放广告的，去思考如何利用广告做大业绩！</p>
+
+          </div>
+        </article>
+      </div>
+
+      <div class="near-post">
+        <div>
+          
+          <div class="prev-post">
+            <div class="prev">上一篇</div>
+            <a href="http://yesman.cc/post/ya-ma-xun-guang-gao-de-di-ceng-luo-ji-2-wei-shi-me-yao-you-hua-guang-gao/">
+              <h3 class="post-title">
+                <span>
+                  亚马逊广告的底层逻辑(2)–为什么要优化广告？
+                </span>
+              </h3>
+            </a>
+          </div>
+          
+        </div>
+        <div>
+          
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="http://yesman.cc/post/ya-ma-xun-guang-gao-100-wen-zhi-jin-jie-you-hua-pian-81-100/">
+              <h3 class="post-title">
+                <span>
+                  亚马逊广告100问之进阶优化篇【81-100】
+                </span>
+              </h3>
+            </a>
+          </div>
+          
+        </div>
+      </div>
+
+      
+
+      <div class="valine">
+        
+      </div>
+
+      <div class="site-footer">
+  <p style="font-size:12px;color:#333333;font-family:-apple-system, &quot;background-color:#F9FAFB;">
+	<span style="color:#E53333;"><u><a href="https://yesman.cc/post/about/"><span style="color:#E53333;"><u><strong>Chaos</strong></u></span></a></u></span> <strong>is a ladder.</strong>
+</p>
+<p>--</p>
+  <b>Theme: </b>
+  <a href="//github.com/chiperman/gridea-theme-porky"><b>Porky</b></a
+  ><b> | Powered by </b>
+  <a href="//open.gridea.dev"><b>Gridea</b></a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad();
+</script>
+
+    </div>
+  </div>
+</body>
+
+</html>
